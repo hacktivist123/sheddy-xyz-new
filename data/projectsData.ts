@@ -13,13 +13,13 @@ const projectsData: Project[] = [
     href: 'https://github.com/hacktivist123/goignore',
   },
   {
-    title: 'Devops Learning Plan',
+    title: 'DevOps Learning Plan',
     description: `This is my DevOps learning plan for the year 2024, it consists of both paid courses and free courses, pick as you wish and create your own learning plan.`,
     imgSrc: '/static/images/devops-learning-plan.png',
     href: 'https://github.com/hacktivist123/DevOps-Learning-Plan',
   },
   {
-    title: 'Devops Project',
+    title: 'DevOps Project',
     description: `This website runs inside its own Docker container, behind a Traefik reverse proxy with a Docker provider, with an automatic TLS certificate from Let's Encrypt, deployed via GitLab CI/CD, to a server managed with Ansible.`,
     imgSrc: '/static/images/devops-project.gif',
     href: 'https://github.com/hacktivist123/devops-project.top?tab=readme-ov-file',
