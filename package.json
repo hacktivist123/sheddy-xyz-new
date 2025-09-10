@@ -21,7 +21,7 @@
     "algoliasearch": "^5.23.0",
     "autoprefixer": "^10.4.13",
     "contentlayer": "v0.3.1",
-    "esbuild": "0.18.11",
+    "esbuild": "^0.25.9",
     "framer-motion": "^12.6.3",
     "github-slugger": "^2.0.0",
     "gray-matter": "^4.0.2",
