@@ -5,6 +5,7 @@ import { slug } from 'github-slugger'
 import path from 'path'
 // Remark packages
 import remarkMath from 'remark-math'
+import remarkGfm from 'remark-gfm'
 import {
   remarkExtractFrontmatter,
   remarkCodeTitles,
@@ -123,6 +124,7 @@ export default makeSource({
       remarkExtractFrontmatter,
       remarkCodeTitles,
       remarkMath,
+      remarkGfm,
       remarkImgToJsx,
     ],
     rehypePlugins: [
