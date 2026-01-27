@@ -1,0 +1,101 @@
+---
+title: "Ingress-NGINX Is Dying and Kubernetes Is Better for It"
+draft: false
+date: "2026-01-15"
+summary: "The Kubernetes project announced the retirement of Ingress-NGINX. While this might feel like losing an old friend, it's actually the natural evolution toward something better."
+tags: [kubernetes, networking, gateway-api, devops, cloud-native, ingress]
+---
+
+Last December, the [Kubernetes project announced](https://kubernetes.io/blog/2024/12/04/ingress-nginx-retirement/) the retirement of Ingress-NGINX—one of its most ubiquitous components. While this might feel like losing an old friend, it's actually the natural evolution toward something better: Gateway API.
+
+Since the announcement, I've seen lots of discussion on [Reddit](https://www.reddit.com/r/kubernetes/comments/1h6c7u1/ingressnginx_controller_deprecation_announcement/) and [Hacker News](https://news.ycombinator.com/item?id=42337854) about what this means. Some folks are worried, others are excited. I think it's worth examining why this is actually a positive development for the Kubernetes ecosystem.
+
+## Kubernetes wasn't great at networking out-of-the-box
+
+When Kubernetes first emerged, networking was kind of an afterthought. The platform was excellent at container orchestration, but getting traffic from the outside world into your cluster? That was... messy.
+
+You had several options, none of them particularly elegant:
+
+- **NodePort**: This exposed your services on high-numbered ports across all nodes in your cluster. It worked, but it wasn't exactly production-ready for most use cases.
+
+- **LoadBalancer**: This required cloud provider integration and would spin up a separate load balancer for each service. Expensive and unwieldy at scale.
+
+- **ExternalIPs**: Manual IP management that didn't really scale beyond small deployments.
+
+This networking gap meant there was real demand for a better abstraction—something that could sit at the edge of your cluster and intelligently route traffic inward.
+
+## Why ingress-nginx became Ubiquitous
+
+Enter Ingress-NGINX. It solved a very real problem by providing a single entry point that could:
+
+- Route traffic to multiple services based on hostnames and paths
+- Terminate SSL/TLS certificates  
+- Handle basic authentication and rate limiting
+- Work reasonably consistently across different Kubernetes environments
+
+The beauty was in its simplicity. You define an Ingress resource, the ingress-nginx controller picks it up, and boom—your services are accessible from outside the cluster. It became the de facto standard because it Just Worked™.
+
+But as often happens in technology, the very success that made ingress-nginx ubiquitous also revealed its fundamental limitations.
+
+## The architecture that stopped scaling quietly
+
+Ingress-NGINX's architecture, while functional, had some inherent constraints that became more apparent as organizations scaled:
+
+**Single controller bottleneck**: The ingress-nginx controller typically runs as a single instance (or a small cluster) that watches all Ingress resources across your entire cluster. As your cluster grows and you have more services, this becomes both a scaling concern and a reliability concern.
+
+**Limited API expressiveness**: The original Ingress API was intentionally minimal. If you wanted to do anything beyond basic host/path routing—like traffic splitting, advanced header manipulation, or sophisticated rate limiting policies—you had to resort to controller-specific annotations.
+
+**Annotation hell**: Speaking of annotations, each ingress controller implementation (nginx, HAProxy, Traefik, etc.) created its own ecosystem of annotations. What worked with ingress-nginx wouldn't necessarily work with other controllers, breaking portability.
+
+These weren't really design flaws per se—they were the natural result of trying to solve immediate problems with the constraints available at the time.
+
+## Ingress was never designed to be a platform boundary
+
+Here's the thing that I think gets to the heart of why ingress-nginx retirement makes sense: Ingress was designed as a simple abstraction, but in practice, it ended up becoming a platform boundary.
+
+What do I mean by that? Well, in most organizations, you have platform/infrastructure teams who need sophisticated traffic management capabilities, and you have application development teams who just want simple, straightforward primitives for exposing their services.
+
+Ingress-NGINX tried to serve both of these constituencies, but it couldn't really serve either one optimally. It was either too limited for platform teams who needed advanced features, or too complex for application developers who just wanted to expose a simple web service.
+
+## What retirement actually signifies
+
+The retirement of ingress-nginx isn't really an abandonment—it's more like a graduation. Ingress-NGINX served its purpose: it kept Kubernetes networking viable and gave the ecosystem time to develop better patterns and abstractions.
+
+The fact that the Kubernetes project feels comfortable retiring it signals that the networking story has matured to the point where we don't need a single, monolithic solution trying to solve every use case.
+
+## Why Gateway API exists
+
+This is where Gateway API comes in. Gateway API was designed from the ground up to address many of the limitations that became apparent with the original Ingress approach:
+
+**Role-oriented API design**: Instead of having a single Ingress resource that tries to do everything, Gateway API has different resources for different roles. Infrastructure teams work with Gateway resources, application teams work with HTTPRoute resources. This creates cleaner separation of concerns.
+
+**Much more expressive**: Gateway API natively supports advanced patterns like traffic splitting, header manipulation, URL rewriting, and more—without requiring controller-specific annotations.
+
+**Extensible without fragmentation**: The API has built-in extension points through policy attachment, so vendors can add capabilities without creating incompatible annotation ecosystems.
+
+**Implementation agnostic**: Because the API is more expressive, different controller implementations can provide much more consistent behavior across vendors.
+
+Most importantly, it's designed from the start to work well as a platform boundary between infrastructure and application concerns.
+
+## Why Kubernetes is better for letting ingress-nginx go
+
+Here's my take: Kubernetes as an ecosystem is healthier when it moves beyond stopgap solutions and embraces patterns designed for the long term.
+
+Ingress-NGINX was essentially training wheels for Kubernetes networking. Training wheels are great—they help you learn to ride—but eventually, they become limiting rather than helpful.
+
+Gateway API implementations like [Envoy Gateway](https://gateway.envoyproxy.io/), [Cilium](https://cilium.io/), [Kong](https://konghq.com/), and [Istio](https://istio.io/) provide much more sophisticated patterns:
+
+- Better multi-tenancy and security isolation
+- More advanced traffic management capabilities
+- Better integration with observability tools
+- Cloud-native security patterns like zero-trust networking
+
+The ecosystem is healthier when we have multiple specialized solutions rather than trying to force one controller to handle every conceivable use case.
+
+## A closing thought
+
+Software evolution often requires letting go of solutions that served their time but have become constraining. Ingress-NGINX's retirement isn't a failure story—it's actually a success story. It solved the immediate problem of Kubernetes networking and bought the ecosystem time to develop better, more sustainable approaches.
+
+Gateway API represents the next evolutionary step: purpose-built for the needs of modern platform engineering while still maintaining the simplicity that made the original Ingress concept so appealing in the first place.
+
+The king is dead, long live the king. Kubernetes networking is better for it.
